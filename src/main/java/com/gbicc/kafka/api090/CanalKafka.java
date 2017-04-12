@@ -6,15 +6,10 @@ import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.CanalEntry.Entry;
 import com.alibaba.otter.canal.protocol.Message;
 import com.gbicc.util.DateUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Date;
@@ -109,37 +104,17 @@ public class CanalKafka implements Runnable {
             JSONObject msg = new JSONObject();
             //表数据json对象
             JSONObject json = new JSONObject();
-            List<String> list = new ArrayList<>();
             for (CanalEntry.Column column : rowData.getAfterColumnsList()) {
                 json.put(column.getName(), column.getValue());
-                list.add(column.getValue());
             }
-            list.add(type);
-            list.add(DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_DETAIAL_PATTERN));
             msg.put(tableName, json);
             msg.put("optype", type);
             //发送到kafka中
             producer.send(new ProducerRecord(topic, tableName, msg.toString()));
             System.out.println(msg.toString());
-            //写入文件
-            writeToFile(tableName, StringUtils.join(list, ',') + "\n");
         }
     }
 
-    public void writeToFile(String tableName, String msg) throws IOException {
-        String dirPath = CanalKafkaMain.bundle.getString("localPath")
-                + File.separator + tableName + File.separator;
-        File file = new File(dirPath);
-        //路径不存在先创建文件夹
-        if (!file.exists())
-            file.mkdirs();
-        //文件格式是当前时间yy-MM-dd
-        String filePath = dirPath + DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN);
-        BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
-        bw.write(msg);
-        bw.flush();
-        bw.close();
-    }
 
     public CanalKafka(String canalURL, int port, String destination, String filter, String topic) {
         this.filter = filter;
