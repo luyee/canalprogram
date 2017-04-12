@@ -80,7 +80,7 @@
                             <!--
                                 应用的main class
                             -->
-                            <mainClass>org.laoyu.kafka.api090.CanalKafkaMain</mainClass>
+                            <mainClass>com.gbicc.canal.Start</mainClass>
                         </manifest>
                     </archive>
                     <!--

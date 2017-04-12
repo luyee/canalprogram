@@ -11,7 +11,7 @@ import java.util.Properties;
  */
 public class Start {
     public static void main(String[] args) throws Exception {
-        File confFile = new File("conf/customer");
+        File confFile = new File("conf/");
         Arrays.asList(confFile.listFiles()).stream()
                 .filter(f -> !f.isDirectory())
                 .forEach(file -> {

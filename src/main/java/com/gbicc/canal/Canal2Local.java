@@ -14,10 +14,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by root on 2017/4/10.
@@ -117,11 +114,10 @@ public class Canal2Local implements Runnable {
             }
             list.add(type);
             list.add(DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_DETAIAL_PATTERN));
-            System.out.println(StringUtils.join(list, ',') + "\n");
             sb.append(StringUtils.join(list, ',') + "\n");
         }
         //写入文件
-        writeToFile(tableName, sb.toString() + "\n");
+        writeToFile(tableName, sb.toString());
     }
 
 
@@ -133,9 +129,9 @@ public class Canal2Local implements Runnable {
      * @throws IOException
      */
     public void writeToFile(String tableName, String msg) throws IOException {
-        Properties props = CanalPropertiesUtils.getInstance();
+        ResourceBundle bundle=CanalPropertiesUtils.bundle;
         //本地根路径
-        String localPath = props.getProperty("localPath");
+        String localPath = bundle.getString("localPath");
         String date = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN2);
         //根路径/库名/表名
         String dirPath = localPath + File.separator + databaseName

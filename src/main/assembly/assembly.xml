@@ -27,10 +27,9 @@
 
         <!-- 把项目的配置文件，打包进zip文件的config目录 -->
         <fileSet>
-            <directory>${deploy.dir}/classes/</directory>
+            <directory>conf/</directory>
             <outputDirectory>/conf</outputDirectory>
             <includes>
-                <include>*.xml</include>
                 <include>*.properties</include>
             </includes>
         </fileSet>
