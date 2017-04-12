@@ -5,7 +5,7 @@ import com.alibaba.otter.canal.client.CanalConnectors;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.CanalEntry.Entry;
 import com.alibaba.otter.canal.protocol.Message;
-import com.gbicc.kafka.api090.CanalKafkaMain;
+import com.gbicc.util.CanalPropertiesUtils;
 import com.gbicc.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -17,6 +17,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by root on 2017/4/10.
@@ -27,6 +28,7 @@ public class Canal2Local implements Runnable {
     private String canalURL;
     private int port;
     private String destination;
+    private String databaseName;
 
     public void run() {
         try {
@@ -131,26 +133,30 @@ public class Canal2Local implements Runnable {
      * @throws IOException
      */
     public void writeToFile(String tableName, String msg) throws IOException {
+        Properties props = CanalPropertiesUtils.getInstance();
+        //本地根路径
+        String localPath = props.getProperty("localPath");
         String date = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN2);
-        String dirPath = CanalKafkaMain.bundle.getString("localPath")
-                + File.separator + tableName + File.separator + date;
+        //根路径/库名/表名
+        String dirPath = localPath + File.separator + databaseName
+                + File.separator + tableName;
         File file = new File(dirPath);
         //路径不存在先创建文件夹
         if (!file.exists())
             file.mkdirs();
         //文件路径格式: 表/yy-MM-dd/tableName+yy-MM-dd
         String filePath = dirPath + File.separator + tableName + date;
-        System.out.println(filePath);
         BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
         bw.write(msg);
         bw.flush();
         bw.close();
     }
 
-    public Canal2Local(String canalURL, int port, String destination, String filter) {
+    public Canal2Local(String canalURL, int port, String destination, String filter, String databaseName) {
         this.filter = filter;
         this.canalURL = canalURL;
         this.port = port;
         this.destination = destination;
+        this.databaseName = databaseName;
     }
 }

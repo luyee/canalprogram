@@ -21,9 +21,6 @@ public class Canal2LocalMain {
         String filter2 = "cgidb.prpcmain,cgidb.prpcmainloan,cgidb.prplcompensate,cgidb.prplloss";
 
 
-        Canal2Local c1 = new Canal2Local(canalURL1, port1, destination1, filter1);
-        c1.run();
-        Canal2Local c2 = new Canal2Local(canalURL2, port2, destination2, filter2);
-        c2.run();
+
     }
 }

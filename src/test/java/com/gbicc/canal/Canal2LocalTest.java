@@ -9,7 +9,8 @@ public class Canal2LocalTest {
         int port = 11111;
         String destination = "example";
         String filter = "test.p,test.p1";
-        Canal2Local c1 = new Canal2Local(canalURL, port, destination, filter);
+        String databaseName = "test";
+        Canal2Local c1 = new Canal2Local(canalURL, port, destination, filter, databaseName);
         c1.run();
     }
 }
