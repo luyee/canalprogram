@@ -137,22 +137,20 @@ public class Canal2Local implements Runnable {
         ResourceBundle bundle = CanalPropertiesUtils.bundle;
         //本地根路径
         String localPath = bundle.getString("localPath");
-        String databaseCode = bundle.getString("databaseCode");
-        String date = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN2);
+//        String date = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN2);
+        String date = Start.CURRENT_DATE;
         //根路径/库名/表名
         String dirPath = localPath
                 + File.separator
-                + databaseName
-                + File.separator
-                + databaseCode
-                + "_"
-                + tableName;
+                + databaseName;
+
         File file = new File(dirPath);
         //路径不存在先创建文件夹
         if (!file.exists())
             file.mkdirs();
         //文件路径格式: 表/yy-MM-dd/tableName+yy-MM-dd
-        String filePath = dirPath + File.separator + tableName + "_" + date;
+        String filePath = dirPath + File.separator + databaseCode
+                + "_" + tableName + "_" + date + ".tmp";
         BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
         bw.write(msg);
         bw.flush();

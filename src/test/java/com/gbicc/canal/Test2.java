@@ -17,6 +17,13 @@ import java.util.ResourceBundle;
 public class Test2 {
     private static final Logger log = LoggerFactory.getLogger(Test2.class);
 
+
+    @Test
+    public void a2() {
+        String name = "E:\\temp\\test\\e110_p_20170414174730.tmp";
+        System.out.println(name.substring(0, name.length() - 3) + "txt");
+    }
+
     @Test
     public void a1() {
         String a = "1";

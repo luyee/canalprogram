@@ -38,6 +38,8 @@ public class DateUtils {
      * 年-月-日 显示格式
      */
     public static String DATE_TO_STRING_SHORT_PATTERN = "yyyy-MM-dd";
+
+    public static String DATE_TO_STRING_SHORT_PATTERN3 = "yyyyMMddHHmmss";
     /**
      * 年月日 显示格式
      */
