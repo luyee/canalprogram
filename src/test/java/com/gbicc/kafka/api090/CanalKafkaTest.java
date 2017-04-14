@@ -5,7 +5,7 @@ package com.gbicc.kafka.api090;
  */
 public class CanalKafkaTest {
     public static void main(String[] args) {
-        String canalURL = "192.168.121.135";
+        String canalURL = "192.168.121.136";
         int port = 11111;
         String destination = "example";
         String filter = "test.p,test.p1";

@@ -8,6 +8,8 @@ import com.alibaba.otter.canal.protocol.Message;
 import com.gbicc.util.CanalPropertiesUtils;
 import com.gbicc.util.DateUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,12 +22,14 @@ import java.util.*;
  * Created by root on 2017/4/10.
  */
 public class Canal2Local implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(Canal2Local.class);
     private int retries = 0;
     private String filter;
     private String canalURL;
     private int port;
     private String destination;
     private String databaseName;
+    private String databaseCode;
 
     public void run() {
         try {
@@ -36,7 +40,7 @@ public class Canal2Local implements Runnable {
                 retries++;
                 run();
             } else
-                System.out.println("重试5次失败");
+                log.error("重试五次失败");
         }
     }
 
@@ -85,19 +89,19 @@ public class Canal2Local implements Runnable {
             String tableName = header.getTableName();
             switch (eventType) {
                 case INSERT:
-                    rowData2local(rowChange.getRowDatasList(), tableName, "INSERT");
+                    rowData2local(rowChange.getRowDatasList(), tableName, "INSERT", header.getExecuteTime());
                     break;
                 case UPDATE:
-                    rowData2local(rowChange.getRowDatasList(), tableName, "UPDATE");
+                    rowData2local(rowChange.getRowDatasList(), tableName, "UPDATE", header.getExecuteTime());
                     break;
                 case DELETE:
-                    rowData2local(rowChange.getRowDatasList(), tableName, "DELETE");
+                    rowData2local(rowChange.getRowDatasList(), tableName, "DELETE", header.getExecuteTime());
                     break;
             }
         }
     }
 
-    private void rowData2local(List<CanalEntry.RowData> rowDatas, String tableName, String type) throws Exception {
+    private void rowData2local(List<CanalEntry.RowData> rowDatas, String tableName, String type, long executeTime) throws Exception {
         //如果是删除的，取删除前数据，否则取修改后的数据
         boolean isDelete = type.equals("DELETE");
         List<com.alibaba.otter.canal.protocol.CanalEntry.Column> dataList;
@@ -113,8 +117,9 @@ public class Canal2Local implements Runnable {
                 list.add(column.getValue());
             }
             list.add(type);
-            list.add(DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_DETAIAL_PATTERN));
-            sb.append(StringUtils.join(list, ',') + "\n");
+//            list.add(DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_DETAIAL_PATTERN));
+            list.add(DateUtils.DateToString(new Date(executeTime), DateUtils.DATE_TO_STRING_DETAIAL_PATTERN));
+            sb.append(StringUtils.join(list, '\001') + "\n");
         }
         //写入文件
         writeToFile(tableName, sb.toString());
@@ -129,30 +134,37 @@ public class Canal2Local implements Runnable {
      * @throws IOException
      */
     public void writeToFile(String tableName, String msg) throws IOException {
-        ResourceBundle bundle=CanalPropertiesUtils.bundle;
+        ResourceBundle bundle = CanalPropertiesUtils.bundle;
         //本地根路径
         String localPath = bundle.getString("localPath");
+        String databaseCode = bundle.getString("databaseCode");
         String date = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN2);
         //根路径/库名/表名
-        String dirPath = localPath + File.separator + databaseName
-                + File.separator + tableName;
+        String dirPath = localPath
+                + File.separator
+                + databaseName
+                + File.separator
+                + databaseCode
+                + "_"
+                + tableName;
         File file = new File(dirPath);
         //路径不存在先创建文件夹
         if (!file.exists())
             file.mkdirs();
         //文件路径格式: 表/yy-MM-dd/tableName+yy-MM-dd
-        String filePath = dirPath + File.separator + tableName + date;
+        String filePath = dirPath + File.separator + tableName + "_" + date;
         BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
         bw.write(msg);
         bw.flush();
         bw.close();
     }
 
-    public Canal2Local(String canalURL, int port, String destination, String filter, String databaseName) {
+    public Canal2Local(String canalURL, int port, String destination, String filter, String databaseName, String databaseCode) {
         this.filter = filter;
         this.canalURL = canalURL;
         this.port = port;
         this.destination = destination;
         this.databaseName = databaseName;
+        this.databaseCode = databaseCode;
     }
 }

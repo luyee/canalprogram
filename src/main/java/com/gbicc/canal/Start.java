@@ -25,9 +25,10 @@ public class Start {
                         String destination = props.getProperty("destination");
                         String filter = props.getProperty("filter");
                         String databaseName = props.getProperty("databaseName");
+                        String databaseCode = props.getProperty("databaseCode");
                         fs.close();
                         //执行主任务
-                        Canal2Local c1 = new Canal2Local(canalURL, port, destination, filter, databaseName);
+                        Canal2Local c1 = new Canal2Local(canalURL, port, destination, filter, databaseName,databaseCode);
                         c1.run();
                     } catch (IOException e) {
                         e.printStackTrace();
