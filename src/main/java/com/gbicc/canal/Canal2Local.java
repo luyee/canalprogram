@@ -137,8 +137,6 @@ public class Canal2Local implements Runnable {
         ResourceBundle bundle = CanalPropertiesUtils.bundle;
         //本地根路径
         String localPath = bundle.getString("localPath");
-//        String date = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN2);
-//        String date = Start.CURRENT_DATE;
         String date = Start.atomicLong.toString();
         //根路径/库名/表名
         String dirPath = localPath
