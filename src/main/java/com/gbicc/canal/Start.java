@@ -1,24 +1,31 @@
 package com.gbicc.canal;
 
 import com.gbicc.util.CanalPropertiesUtils;
-import com.gbicc.util.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by root on 2017/4/12.
  */
 public class Start {
-    public static volatile String CURRENT_DATE = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN3);
+    public static AtomicLong atomicLong = new AtomicLong(new Date().getTime());
+    private static Logger log = LoggerFactory.getLogger(Start.class);
 
     public static void main(String[] args) throws Exception {
-        List<String> filePathList = new ArrayList<>();
+        ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
         //读取用户canal配置文件
         File confFile = new File("conf/");
 
@@ -26,7 +33,6 @@ public class Start {
         //本地根路径
         String localPath = bundle.getString("localPath");
 //        String date = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN2);
-        String date = Start.CURRENT_DATE;
         //根路径/库名/表名
 
         File[] files = confFile.listFiles();
@@ -43,14 +49,15 @@ public class Start {
                         String filter = props.getProperty("filter");
                         String databaseName = props.getProperty("databaseName");
                         String databaseCode = props.getProperty("databaseCode");
+                        Integer interval = Integer.parseInt(props.getProperty("interval").trim());
                         String dirPath = localPath
                                 + File.separator
                                 + databaseName;
                         //将源路径添加到list中
-                        filePathList.add(dirPath);
+                        map.put(dirPath, interval);
+
                         //关闭流
                         fs.close();
-//                        filePathList.add()
                         //执行主任务
                         Canal2Local c1 = new Canal2Local(canalURL, port, destination, filter, databaseName, databaseCode);
                         new Thread(c1).start();
@@ -58,45 +65,47 @@ public class Start {
                         e.printStackTrace();
                     }
                 });
+        //初始化线程池
         ScheduledExecutorService service = Executors
-                .newSingleThreadScheduledExecutor();
-
-
-        int interval = Integer.parseInt(CanalPropertiesUtils.bundle.getString("interval"));
-        service.scheduleAtFixedRate(new SplitFileByHour(filePathList), 1, interval, TimeUnit.MINUTES);
+                .newScheduledThreadPool(map.size());
+        //根据每个库设置不同时间间隔进行文件转换操作
+        map.forEach((k, v) -> {
+            service.scheduleWithFixedDelay(new SplitFileByDate(k), v, v, TimeUnit.MINUTES);
+        });
 
     }
 
-    static class SplitFileByHour implements Runnable {
-        private List<String> filePathList;
+    static class SplitFileByDate implements Runnable {
+        private String databasePath;
 
-
-        public SplitFileByHour(List<String> filePathList) {
-            this.filePathList = filePathList;
+        public SplitFileByDate(String databasePath) {
+            this.databasePath = databasePath;
         }
 
         @Override
         public void run() {
-            CURRENT_DATE = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN3);
-            for (String s : filePathList) {
-                File file = new File(s);
-                if (file.exists()) {
-                    for (File f : file.listFiles()) {
+            atomicLong.set(new Date().getTime());
+            File file = new File(databasePath);
+           /* Arrays.asList(file.listFiles()).stream()
+                    .filter(f -> !f.isDirectory() && f.getName().endsWith(".tmp"))
+                    .forEach(f -> {
                         String path = f.getAbsolutePath();
                         System.out.println(path.substring(0, path.length() - 3) + "txt");
                         f.renameTo(new File(path.substring(0, path.length() - 3) + "txt"));
+                    });*/
+
+
+            if (file.exists()) {
+                for (File f : file.listFiles()) {
+                    if (!f.isDirectory() && f.getName().endsWith(".tmp")) {
+                        String path = f.getAbsolutePath();
+                        String after = path.substring(0, path.length() - 3) + "txt";
+                        log.info("将文件{}转化为{}", path, after);
+                        f.renameTo(new File(after));
                     }
                 }
             }
-            /*filePathList.forEach(filePath -> {
-                File file = new File(filePath);
-                Arrays.asList(file.listFiles()).stream()
-                        .filter(f -> !f.isDirectory())
-                        .forEach(f -> {
-                            System.out.println(f.getAbsolutePath().split(".")[0] + ".txt");
-                            f.renameTo(new File(f.getAbsolutePath().split(".")[0] + ".txt"));
-                        });
-            });*/
+
         }
     }
 

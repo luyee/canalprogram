@@ -8,14 +8,42 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by root on 2017/4/12.
  */
 public class Test2 {
     private static final Logger log = LoggerFactory.getLogger(Test2.class);
+
+
+    @Test
+    public void a4() throws InterruptedException {
+        AtomicLong atomicLong=new AtomicLong(new Date().getTime());
+        System.out.println(atomicLong.toString());
+        Thread.sleep(300);
+        atomicLong.set(new Date().getTime());
+        System.out.println(atomicLong.toString());
+
+
+    }
+
+    @Test
+    public void a3() {
+        File file = new File("E://temp//test");
+        Arrays.asList(file.listFiles()).stream()
+                .filter(f -> !f.isDirectory() && f.getName().endsWith(".tmp"))
+                .forEach(f -> {
+                    String path = f.getAbsolutePath();
+                    System.out.println(path);
+//                    System.out.println(path.substring(0, path.length() - 3) + "txt");
+//                    f.renameTo(new File(path.substring(0, path.length() - 3) + "txt"));
+                });
+    }
 
 
     @Test
