@@ -38,6 +38,11 @@ public class Canal2Local implements Runnable {
             if (retries < 5) {
                 e.printStackTrace();
                 retries++;
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
                 run();
             } else
                 log.error("重试五次失败");
@@ -58,10 +63,9 @@ public class Canal2Local implements Runnable {
         while (true) {
             // 获取指定数量的数据
             Message message = connector.getWithoutAck(batchSize);
-            long batchId = message.getId();
             int size = message.getEntries().size();
             //如果没有数据变动
-            if (batchId == -1 || size == 0) {
+            if (size == 0) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -71,7 +75,6 @@ public class Canal2Local implements Runnable {
             } else {
                 sendMessage(message.getEntries());
             }
-            connector.ack(batchId); // 提交确认
         }
     }
 
@@ -137,7 +140,7 @@ public class Canal2Local implements Runnable {
         ResourceBundle bundle = CanalPropertiesUtils.bundle;
         //本地根路径
         String localPath = bundle.getString("localPath");
-        String date = Start.atomicLong.toString();
+        String date = DateUtils.DateToString(new Date(Start.atomicLong.get()), DateUtils.DATE_TO_STRING_SHORT_PATTERN3);
         //根路径/库名/表名
         String dirPath = localPath
                 + File.separator

@@ -49,7 +49,7 @@ public class Start {
                         String canalURL = props.getProperty("canalURL");
                         int port = Integer.parseInt(props.getProperty("canalPort").trim());
                         String destination = props.getProperty("destination");
-                        String filter = props.getProperty("filter");
+                        String filter = props.getOrDefault("filter", ".*\\..*").toString();
                         String databaseName = props.getProperty("databaseName");
                         String databaseCode = props.getProperty("databaseCode");
                         Integer interval = Integer.parseInt(props.getProperty("interval").trim());

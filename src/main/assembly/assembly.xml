@@ -3,7 +3,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <!-- 最终打包成一个用于发布的zip文件 -->
     <formats>
-        <format>zip</format>
+        <format>tar.gz</format>
     </formats>
 
     <!-- Adds dependencies to zip package under lib directory -->
@@ -29,6 +29,34 @@
         <fileSet>
             <directory>conf/</directory>
             <outputDirectory>/conf</outputDirectory>
+            <includes>
+                <include>*.properties</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>bin/</directory>
+            <outputDirectory>/bin</outputDirectory>
+            <includes>
+                <include>*.sh</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>logs/</directory>
+            <outputDirectory>/logs</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>flumebin/</directory>
+            <outputDirectory>/flumebin</outputDirectory>
+            <includes>
+                <include>*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>flumeconf/</directory>
+            <outputDirectory>/flumeconf</outputDirectory>
             <includes>
                 <include>*.properties</include>
             </includes>

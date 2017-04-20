@@ -4,10 +4,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
@@ -22,8 +19,17 @@ public class Test2 {
 
 
     @Test
+    public void a5() throws IOException {
+        File confFile = new File("XX.properties/config.properties");
+        Properties props = new Properties();
+        props.load(new FileInputStream(confFile));
+        System.out.println(props.getOrDefault("filter", "aaa"));
+    }
+
+
+    @Test
     public void a4() throws InterruptedException {
-        AtomicLong atomicLong=new AtomicLong(new Date().getTime());
+        AtomicLong atomicLong = new AtomicLong(new Date().getTime());
         System.out.println(atomicLong.toString());
         Thread.sleep(300);
         atomicLong.set(new Date().getTime());

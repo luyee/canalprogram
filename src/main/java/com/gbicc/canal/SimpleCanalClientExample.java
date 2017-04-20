@@ -12,7 +12,7 @@ public class SimpleCanalClientExample {
 
     public static void main(String args[]) {
         // 创建链接
-        CanalConnector connector = CanalConnectors.newSingleConnector(new InetSocketAddress("192.168.121.138",
+        CanalConnector connector = CanalConnectors.newSingleConnector(new InetSocketAddress("192.168.110.73",
                 11111), "example", "", "");
         int batchSize = 1000;
         int emptyCount = 0;
@@ -73,8 +73,6 @@ public class SimpleCanalClientExample {
                 } else if (eventType == EventType.INSERT) {
                     printColumn(rowData.getAfterColumnsList());
                 } else {
-                    System.out.println("-------> before");
-                    printColumn(rowData.getBeforeColumnsList());
                     System.out.println("-------> after");
                     printColumn(rowData.getAfterColumnsList());
                 }
