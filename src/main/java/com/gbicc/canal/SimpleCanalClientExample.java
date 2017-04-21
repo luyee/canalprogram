@@ -13,6 +13,7 @@ public class SimpleCanalClientExample {
     public static void main(String args[]) {
         // 创建链接
         CanalConnector connector = CanalConnectors.newSingleConnector(new InetSocketAddress("192.168.110.73",
+//        CanalConnector connector = CanalConnectors.newSingleConnector(new InetSocketAddress("192.168.121.139",
                 11111), "example", "", "");
         int batchSize = 1000;
         int emptyCount = 0;
@@ -66,6 +67,8 @@ public class SimpleCanalClientExample {
                     entry.getHeader().getLogfileName(), entry.getHeader().getLogfileOffset(),
                     entry.getHeader().getSchemaName(), entry.getHeader().getTableName(),
                     eventType));
+
+            System.out.println(entry.getHeader().getExecuteTime());
 
             for (RowData rowData : rowChage.getRowDatasList()) {
                 if (eventType == EventType.DELETE) {

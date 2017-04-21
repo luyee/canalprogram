@@ -84,10 +84,11 @@ public class Canal2Local implements Runnable {
         for (Entry entry : entries) {
             if (entry.getEntryType() == CanalEntry.EntryType.TRANSACTIONBEGIN || entry.getEntryType() == CanalEntry.EntryType.TRANSACTIONEND)
                 continue;
+            CanalEntry.Header header = entry.getHeader();
+
             CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(entry.getStoreValue());
             // eventType是mysql操作的四种类型 select,update，insert，delete
             CanalEntry.EventType eventType = rowChange.getEventType();
-            CanalEntry.Header header = entry.getHeader();
             //获取表名
             String tableName = header.getTableName();
             switch (eventType) {
