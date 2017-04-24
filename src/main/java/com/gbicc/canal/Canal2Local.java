@@ -39,6 +39,7 @@ public class Canal2Local implements Runnable {
                 e.printStackTrace();
                 retries++;
                 try {
+                    log.warn("尝试重新链接canal服务");
                     Thread.sleep(10000);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
@@ -60,6 +61,7 @@ public class Canal2Local implements Runnable {
         connector.subscribe(filter);
         //回滚
         connector.rollback();
+        log.info("连接canal服务,地址为{}:{}",canalURL,port);
         while (true) {
             // 获取指定数量的数据
             Message message = connector.getWithoutAck(batchSize);
@@ -106,6 +108,7 @@ public class Canal2Local implements Runnable {
     }
 
     private void rowData2local(List<CanalEntry.RowData> rowDatas, String tableName, String type, long executeTime) throws Exception {
+        log.info("将{}表数据写入本地", tableName);
         //如果是删除的，取删除前数据，否则取修改后的数据
         boolean isDelete = type.equals("DELETE");
         List<com.alibaba.otter.canal.protocol.CanalEntry.Column> dataList;
