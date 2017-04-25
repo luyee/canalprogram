@@ -1,6 +1,6 @@
 #!/bin/bash
 #pid文件绝对路径
-DIR=/canal/runjar/bin/start.pid
+DIR=/canal/runjar/start.pid
 #如果pid文件存在，则读取pid文件中的进程号
 if [ -f $DIR ]; then
    for PID in `cat $DIR`

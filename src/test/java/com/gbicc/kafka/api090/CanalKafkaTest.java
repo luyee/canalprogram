@@ -5,10 +5,10 @@ package com.gbicc.kafka.api090;
  */
 public class CanalKafkaTest {
     public static void main(String[] args) {
-        String canalURL = "192.168.121.136";
+        String canalURL = "192.168.110.73";
         int port = 11111;
         String destination = "example";
-        String filter = "test.p,test.p1";
+        String filter = "test.test1";
         String topic = "temp";
         CanalKafka c1 = new CanalKafka(canalURL, port, destination, filter, topic);
         c1.run();

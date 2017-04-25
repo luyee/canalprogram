@@ -5,9 +5,9 @@ import com.alibaba.otter.canal.client.CanalConnectors;
 import com.alibaba.otter.canal.protocol.CanalEntry;
 import com.alibaba.otter.canal.protocol.CanalEntry.Entry;
 import com.alibaba.otter.canal.protocol.Message;
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
@@ -16,6 +16,7 @@ import java.util.List;
  * Created by root on 2017/4/10.
  */
 public class CanalKafka implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(CanalKafka.class);
     private int retries = 0;
     private String filter;
     private String canalURL;
@@ -30,9 +31,15 @@ public class CanalKafka implements Runnable {
             if (retries < 5) {
                 e.printStackTrace();
                 retries++;
+                try {
+                    log.error("尝试重新链接canal服务,地址为{}:{} destination={}", canalURL, port, destination);
+                    Thread.sleep(10000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
                 run();
             } else
-                System.out.println("重试5次失败");
+                log.error("重试五次失败");
         }
     }
 
@@ -47,13 +54,13 @@ public class CanalKafka implements Runnable {
         connector.subscribe(filter);
         //回滚
         connector.rollback();
+        log.info("连接canal服务,地址为{}:{}", canalURL, port);
         while (true) {
             // 获取指定数量的数据
             Message message = connector.getWithoutAck(batchSize);
-            long batchId = message.getId();
             int size = message.getEntries().size();
             //如果没有数据变动
-            if (batchId == -1 || size == 0) {
+            if (size == 0) {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -63,7 +70,6 @@ public class CanalKafka implements Runnable {
             } else {
                 sendMessage(message.getEntries());
             }
-            connector.ack(batchId); // 提交确认
         }
     }
 
@@ -94,7 +100,7 @@ public class CanalKafka implements Runnable {
 
     //发送数据到kafka
     private void sendAction(List<CanalEntry.RowData> rowDatas, String tableName, String type) throws Exception {
-        Producer producer = KafkaUtils.getInstance();
+//        Producer producer = KafkaUtils.getInstance();
         //遍历数据
         for (CanalEntry.RowData rowData : rowDatas) {
             //数据json对象
@@ -106,9 +112,11 @@ public class CanalKafka implements Runnable {
             }
             msg.put(tableName, json);
             msg.put("optype", type);
+            String temp=msg.toString();
             //发送到kafka中
-            producer.send(new ProducerRecord(topic, tableName, msg.toString()));
-            System.out.println(msg.toString());
+//            log.info(temp);
+            System.out.println(temp);
+//            producer.send(new ProducerRecord(topic, tableName,temp));
         }
     }
 

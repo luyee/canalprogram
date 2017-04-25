@@ -1,9 +1,6 @@
 package com.gbicc.canal;
 
 import com.gbicc.util.CanalPropertiesUtils;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +25,7 @@ public class Start {
     private static Logger log = LoggerFactory.getLogger(Start.class);
 
     public static void main(String[] args) throws Exception {
+        //放置databaseName与interval，用来控制文件改名时间间隔
         ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
         //读取用户canal配置文件
         File confFile = new File("conf/");
@@ -35,10 +33,9 @@ public class Start {
         ResourceBundle bundle = CanalPropertiesUtils.bundle;
         //本地根路径
         String localPath = bundle.getString("localPath");
-//        String date = DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_SHORT_PATTERN2);
-        //根路径/库名/表名
 
         File[] files = confFile.listFiles();
+        //遍历配额制文件
         Arrays.asList(files).stream()
                 .filter(f -> !f.isDirectory())
                 .forEach(file -> {
@@ -49,14 +46,14 @@ public class Start {
                         String canalURL = props.getProperty("canalURL");
                         int port = Integer.parseInt(props.getProperty("canalPort").trim());
                         String destination = props.getProperty("destination");
-                        String filter = props.getOrDefault("filter", ".*\\..*").toString();
+                        String filter = props.get("filter").toString();
                         String databaseName = props.getProperty("databaseName");
                         String databaseCode = props.getProperty("databaseCode");
                         Integer interval = Integer.parseInt(props.getProperty("interval").trim());
                         String dirPath = localPath
                                 + File.separator
                                 + databaseName;
-                        //将源路径添加到list中
+                        //将databaseName与interval放入map
                         map.put(dirPath, interval);
 
                         //关闭流
@@ -76,25 +73,6 @@ public class Start {
             service.scheduleWithFixedDelay(new SplitFileByDate(k), v, v, TimeUnit.MINUTES);
         });
 
-    }
-
-    private static void consumer() {
-        ResourceBundle bundle = ResourceBundle.getBundle("kafka");
-        Properties props = new Properties();
-        props.put("bootstrap.servers", bundle.getString("bootstrap.servers"));
-        props.put("group.id", "test");
-        props.put("enable.auto.commit", "true");
-        props.put("auto.commit.interval.ms", "1000");
-        props.put("session.timeout.ms", "30000");
-        props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-        KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(Arrays.asList(bundle.getString("topics").split(",")));
-        while (true) {
-            ConsumerRecords<String, String> records = consumer.poll(100);
-            for (ConsumerRecord<String, String> record : records)
-                System.out.printf("offset = %d, key = %s, value = %s", record.offset(), record.key(), record.value());
-        }
     }
 
 

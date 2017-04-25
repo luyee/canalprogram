@@ -1,6 +1,6 @@
 #!/bin/bash
 #pid文件目录
-DIR=/canal/runjar/bin/start.pid
+DIR=/canal/runjar/start.pid
 #如果pid文件存在，则报请先启动服务
 if [ -f $DIR ]; then
    echo "请先停止服务"
