@@ -1,5 +1,6 @@
 package com.gbicc.kafka.api090;
 
+import com.gbicc.old.canal.ClientSample;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 
@@ -23,7 +24,7 @@ public class KafkaUtils {
 
     private static void init() {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, CanalKafkaMain.bundle.getString("bootstrap.servers"));
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, ClientSample.rb.getString("metadataBrokerList"));
         props.put("acks", "all");
         props.put("retries", 1);
         props.put("batch.size", 16384);

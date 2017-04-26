@@ -87,10 +87,10 @@ public class CanalKafka implements Runnable {
             String tableName = header.getTableName();
             switch (eventType) {
                 case INSERT:
-                    sendAction(rowChange.getRowDatasList(), tableName, "INSERT");
+                    sendAction(rowChange.getRowDatasList(), tableName, "insert");
                     break;
                 case UPDATE:
-                    sendAction(rowChange.getRowDatasList(), tableName, "UPDATE");
+                    sendAction(rowChange.getRowDatasList(), tableName, "update");
                     break;
             }
         }
@@ -111,7 +111,7 @@ public class CanalKafka implements Runnable {
                 json.put(column.getName(), column.getValue());
             }
             msg.put(tableName, json);
-            msg.put("optype", type);
+            msg.put(type, type);
             String temp=msg.toString();
             //发送到kafka中
 //            log.info(temp);

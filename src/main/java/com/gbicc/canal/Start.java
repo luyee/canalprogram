@@ -43,13 +43,13 @@ public class Start {
                     try {
                         FileInputStream fs = new FileInputStream(file);
                         props.load(fs);
-                        String canalURL = props.getProperty("canalURL");
-                        int port = Integer.parseInt(props.getProperty("canalPort").trim());
-                        String destination = props.getProperty("destination");
-                        String filter = props.get("filter").toString();
-                        String databaseName = props.getProperty("databaseName");
-                        String databaseCode = props.getProperty("databaseCode");
-                        Integer interval = Integer.parseInt(props.getProperty("interval").trim());
+                        final  String canalURL = props.getProperty("canalURL");
+                        final  int port = Integer.parseInt(props.getProperty("canalPort").trim());
+                        final String destination = props.getProperty("destination");
+                        final String filter = props.getProperty("filter").toLowerCase();
+                        final String databaseName = props.getProperty("databaseName");
+                        final String databaseCode = props.getProperty("databaseCode");
+                        final Integer interval = Integer.parseInt(props.getProperty("interval").trim());
                         String dirPath = localPath
                                 + File.separator
                                 + databaseName;

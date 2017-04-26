@@ -19,12 +19,9 @@ public class CanalKafkaMain {
         int port2 = Integer.parseInt(bundle.getString("canalPort2").trim());
         String destination2 = bundle.getString("destination2");
         String filter2 = "cgidb.prpcmain,cgidb.prpcmainloan,cgidb.prplcompensate,cgidb.prplloss";
-
-
         CanalKafka c1 = new CanalKafka(canalURL1, port1, destination1, filter1, topic);
         CanalKafka c2 = new CanalKafka(canalURL2, port2, destination2, filter2, topic);
-        c1.run();
-        c2.run();
-
+        new Thread(c1).start();
+        new Thread(c2).start();
     }
 }

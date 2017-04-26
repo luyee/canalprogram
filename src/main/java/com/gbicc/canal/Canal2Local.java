@@ -26,12 +26,16 @@ public class Canal2Local implements Runnable {
     private int retries = 0;
     private String filter;
     private String canalURL;
-    private int port;
-    private String destination;
-    private String databaseName;
-    private String databaseCode;
+    private  int port;
+    private final  String destination;
+    private final String databaseName;
+    private final String databaseCode;
+    private Set<String> set=new HashSet<>();
 
     public void run() {
+        for (String s : filter.trim().split(",")) {
+            set.add(s.split("\\.")[1]);
+        }
         try {
             start();
         } catch (Exception e) {
@@ -61,7 +65,7 @@ public class Canal2Local implements Runnable {
         connector.subscribe(filter);
         //回滚
         connector.rollback();
-        log.info("连接canal服务,地址为{}:{}", canalURL, port);
+        log.info("连接canal服务,地址为{}:{},destination为:{}", canalURL, port,destination);
         while (true) {
             // 获取指定数量的数据
             Message message = connector.getWithoutAck(batchSize);
@@ -92,17 +96,22 @@ public class Canal2Local implements Runnable {
             // eventType是mysql操作的四种类型 select,update，insert，delete
             CanalEntry.EventType eventType = rowChange.getEventType();
             //获取表名
-            String tableName = header.getTableName();
-            switch (eventType) {
-                case INSERT:
-                    rowData2local(rowChange.getRowDatasList(), tableName, "INSERT", header.getExecuteTime());
-                    break;
-                case UPDATE:
-                    rowData2local(rowChange.getRowDatasList(), tableName, "UPDATE", header.getExecuteTime());
-                    break;
-                case DELETE:
-                    rowData2local(rowChange.getRowDatasList(), tableName, "DELETE", header.getExecuteTime());
-                    break;
+            String tableName = header.getTableName().toLowerCase();
+            if(!set.contains(tableName)){
+                log.warn("当前库为:{}.所订阅的表里不包含{}表",databaseName,tableName);
+                continue;
+            }else{
+                switch (eventType) {
+                    case INSERT:
+                        rowData2local(rowChange.getRowDatasList(), tableName, "INSERT", header.getExecuteTime());
+                        break;
+                    case UPDATE:
+                        rowData2local(rowChange.getRowDatasList(), tableName, "UPDATE", header.getExecuteTime());
+                        break;
+                    case DELETE:
+                        rowData2local(rowChange.getRowDatasList(), tableName, "DELETE", header.getExecuteTime());
+                        break;
+                }
             }
         }
     }
@@ -156,7 +165,7 @@ public class Canal2Local implements Runnable {
         //文件路径格式: 表/yy-MM-dd/tableName+yy-MM-dd
         String filePath = dirPath + File.separator + databaseCode
                 + "_" + tableName + "_" + date + ".tmp";
-        log.info("将{}数据文件写入到{}路径下", tableName, filePath);
+        log.info("当前库为:{},将{}表数据文件写入到{}路径下",databaseName, tableName, filePath);
         BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true));
         bw.write(msg);
         bw.flush();
