@@ -19,7 +19,8 @@ public class SimpleCanalClientExample {
         int emptyCount = 0;
         try {
             connector.connect();
-            connector.subscribe(".*\\..*");
+            connector.subscribe("test.student");
+//            connector.subscribe(".*\\..*");
             connector.rollback();
             int totalEmptyCount = 120;
             while (emptyCount < totalEmptyCount) {
@@ -61,14 +62,12 @@ public class SimpleCanalClientExample {
                 throw new RuntimeException("ERROR ## parser of eromanga-event has an error , data:" + entry.toString(),
                         e);
             }
-
             EventType eventType = rowChage.getEventType();
             System.out.println(String.format("================> binlog[%s:%s] , name[%s,%s] , eventType : %s",
                     entry.getHeader().getLogfileName(), entry.getHeader().getLogfileOffset(),
                     entry.getHeader().getSchemaName(), entry.getHeader().getTableName(),
                     eventType));
 
-            System.out.println(entry.getHeader().getExecuteTime());
 
             for (RowData rowData : rowChage.getRowDatasList()) {
                 if (eventType == EventType.DELETE) {
@@ -76,6 +75,8 @@ public class SimpleCanalClientExample {
                 } else if (eventType == EventType.INSERT) {
                     printColumn(rowData.getAfterColumnsList());
                 } else {
+                    System.out.println("-------> before");
+                    printColumn(rowData.getBeforeColumnsList());
                     System.out.println("-------> after");
                     printColumn(rowData.getAfterColumnsList());
                 }

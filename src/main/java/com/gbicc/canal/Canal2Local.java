@@ -128,6 +128,18 @@ public class Canal2Local implements Runnable {
             else
                 dataList = rowData.getAfterColumnsList();
 
+/*
+            switch (type){
+                case "DELETE":
+                    rowData.getBeforeColumnsList().forEach(column -> list.add(column.getValue()));
+                    break;
+                case "UPDATE":
+                    break;
+                case "INSERT":
+                    rowData.getAfterColumnsList().forEach(column -> list.add(column.getValue()));
+                    break;
+            }*/
+
             for (CanalEntry.Column column : dataList) {
                 list.add(column.getValue());
             }

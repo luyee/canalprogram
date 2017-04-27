@@ -9,10 +9,8 @@
 	flume-ng agent --conf /canal/flume/conf --conf-file /canal/runjar/flumeconf/FK.properties -n FK -Dflume.root.logger=INFO,console &>/canal/runjar/logs/FK.log &
 	flume-ng agent --conf /canal/flume/conf --conf-file /canal/runjar/flumeconf/FQZ.properties -n FQZ -Dflume.root.logger=INFO,console &>/canal/runjar/logs/FQZ.log &
 	flume-ng agent --conf /canal/flume/conf --conf-file /canal/runjar/flumeconf/GW.properties -n GW -Dflume.root.logger=INFO,console &>/canal/runjar/logs/GW.log &
-	flume-ng agent --conf /canal/flume/conf --conf-file /canal/runjar/flumeconf/LP.properties -n LP -Dflume.root.logger=INFO,console &>/canal/runjar/logs/LP.log &
 	flume-ng agent --conf /canal/flume/conf --conf-file /canal/runjar/flumeconf/SK.properties -n SK -Dflume.root.logger=INFO,console &>/canal/runjar/logs/SK.log &
 	flume-ng agent --conf /canal/flume/conf --conf-file /canal/runjar/flumeconf/XX.properties -n XX -Dflume.root.logger=INFO,console &>/canal/runjar/logs/XX.log &
-	flume-ng agent --conf /canal/flume/conf --conf-file /canal/runjar/flumeconf/XXSFF.properties -n XXSFF -Dflume.root.logger=INFO,console &>/canal/runjar/logs/XXSFF.log &
 	flume-ng agent --conf /canal/flume/conf --conf-file /canal/runjar/flumeconf/ZQ.properties -n ZQ -Dflume.root.logger=INFO,console &>/canal/runjar/logs/ZQ.log &
 	echo "服务启动成功"
 fi
