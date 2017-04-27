@@ -23,4 +23,19 @@ public class Test5 {
         }
     }
 
+    @Test
+    public void bb(){
+        String a="B";
+        switch (a){
+            default:
+                System.out.println("default");
+            case "B":
+                System.out.println("B");
+                break;
+            case "A":
+                System.out.println("A");
+                break;
+        }
+    }
+
 }

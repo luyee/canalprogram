@@ -91,7 +91,7 @@ public class Canal2Local implements Runnable {
             if (entry.getEntryType() == CanalEntry.EntryType.TRANSACTIONBEGIN || entry.getEntryType() == CanalEntry.EntryType.TRANSACTIONEND)
                 continue;
             CanalEntry.Header header = entry.getHeader();
-
+            long offset=header.getLogfileOffset();
             CanalEntry.RowChange rowChange = CanalEntry.RowChange.parseFrom(entry.getStoreValue());
             // eventType是mysql操作的四种类型 select,update，insert，delete
             CanalEntry.EventType eventType = rowChange.getEventType();
@@ -103,50 +103,57 @@ public class Canal2Local implements Runnable {
             }else{
                 switch (eventType) {
                     case INSERT:
-                        rowData2local(rowChange.getRowDatasList(), tableName, "INSERT", header.getExecuteTime());
+                        rowData2local(rowChange.getRowDatasList(), tableName, "INSERT", header.getExecuteTime(),offset);
                         break;
                     case UPDATE:
-                        rowData2local(rowChange.getRowDatasList(), tableName, "UPDATE", header.getExecuteTime());
+                        rowData2local(rowChange.getRowDatasList(), tableName, "UPDATE", header.getExecuteTime(),offset);
                         break;
                     case DELETE:
-                        rowData2local(rowChange.getRowDatasList(), tableName, "DELETE", header.getExecuteTime());
+                        rowData2local(rowChange.getRowDatasList(), tableName, "DELETE", header.getExecuteTime(),offset);
                         break;
                 }
             }
         }
     }
 
-    private void rowData2local(List<CanalEntry.RowData> rowDatas, String tableName, String type, long executeTime) throws Exception {
+    private void rowData2local(List<CanalEntry.RowData> rowDatas, String tableName, String type, long executeTime,long offset) throws Exception {
         //如果是删除的，取删除前数据，否则取修改后的数据
-        boolean isDelete = type.equals("DELETE");
         List<com.alibaba.otter.canal.protocol.CanalEntry.Column> dataList;
         StringBuilder sb = new StringBuilder();
         for (CanalEntry.RowData rowData : rowDatas) {
             List<String> list = new ArrayList<>();
-            if (isDelete)
-                dataList = rowData.getBeforeColumnsList();
-            else
-                dataList = rowData.getAfterColumnsList();
-
-/*
+            String executeDate=DateUtils.DateToString(new Date(executeTime), DateUtils.DATE_TO_STRING_DETAIAL_PATTERN);
             switch (type){
                 case "DELETE":
                     rowData.getBeforeColumnsList().forEach(column -> list.add(column.getValue()));
+                    list.add(type);
+                    list.add(executeDate);
+                    list.add("");
+                    sb.append(StringUtils.join(list, '\001') + "\n");
                     break;
                 case "UPDATE":
+                    String uuid= UUID.randomUUID().toString();
+                    rowData.getBeforeColumnsList().forEach(column -> list.add(column.getValue()));
+                    list.add("UPDATEBEFORE");
+                    list.add(executeDate);
+                    list.add(uuid);
+                    sb.append(StringUtils.join(list, '\001') + "\n");
+                    list.clear();
+                    rowData.getAfterColumnsList().forEach(column -> list.add(column.getValue()));
+                    list.add("UPDATEAFTER");
+                    list.add(executeDate);
+                    list.add(uuid);
+                    sb.append(StringUtils.join(list, '\001') + "\n");
                     break;
                 case "INSERT":
                     rowData.getAfterColumnsList().forEach(column -> list.add(column.getValue()));
+                    list.add(type);
+                    list.add(executeDate);
+                    list.add("");
+                    sb.append(StringUtils.join(list, '\001') + "\n");
                     break;
-            }*/
-
-            for (CanalEntry.Column column : dataList) {
-                list.add(column.getValue());
             }
-            list.add(type);
-//            list.add(DateUtils.DateToString(new Date(), DateUtils.DATE_TO_STRING_DETAIAL_PATTERN));
-            list.add(DateUtils.DateToString(new Date(executeTime), DateUtils.DATE_TO_STRING_DETAIAL_PATTERN));
-            sb.append(StringUtils.join(list, '\001') + "\n");
+
         }
         //写入文件
         writeToFile(tableName, sb.toString());

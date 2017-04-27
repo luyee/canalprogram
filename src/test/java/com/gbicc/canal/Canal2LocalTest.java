@@ -47,7 +47,6 @@ public class Canal2LocalTest {
                         int port = Integer.parseInt(props.getProperty("canalPort").trim());
                         String destination = props.getProperty("destination");
                         String filter = props.getOrDefault("filter", ".*\\..*").toString();
-                        System.out.println(filter);
                         String databaseName = props.getProperty("databaseName");
                         String databaseCode = props.getProperty("databaseCode");
                         Integer interval = Integer.parseInt(props.getProperty("interval").trim());

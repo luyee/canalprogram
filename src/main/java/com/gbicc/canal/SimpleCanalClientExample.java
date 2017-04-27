@@ -7,6 +7,8 @@ import com.alibaba.otter.canal.protocol.Message;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 public class SimpleCanalClientExample {
 
@@ -76,8 +78,11 @@ public class SimpleCanalClientExample {
                     printColumn(rowData.getAfterColumnsList());
                 } else {
                     System.out.println("-------> before");
+                    String uuid= UUID.randomUUID().toString();
+                    System.out.println(uuid);
                     printColumn(rowData.getBeforeColumnsList());
                     System.out.println("-------> after");
+                    System.out.println(uuid);
                     printColumn(rowData.getAfterColumnsList());
                 }
             }

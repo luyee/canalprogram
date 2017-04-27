@@ -90,8 +90,8 @@
                             <!--
                                 应用的main class
                             -->
-                            <!--<mainClass>com.gbicc.canal.Start</mainClass>-->
-                            <mainClass>com.gbicc.old.canal.Start</mainClass>
+                            <mainClass>com.gbicc.canal.Start</mainClass>
+                            <!--<mainClass>com.gbicc.old.canal.Start</mainClass>-->
                         </manifest>
                     </archive>
                     <!--
@@ -125,7 +125,7 @@
             </plugin>
 
         </plugins>
-        <!--<finalName>canal2Local</finalName>-->
-        <finalName>canalkafka</finalName>
+        <finalName>canal2Local</finalName>
+        <!--<finalName>canalkafka</finalName>-->
     </build>
 </project>
